@@ -19,12 +19,12 @@ namespace LifePerformanceMitch
          
         public static bool VoegMeerToe(Vaargebieden vaar)
         {
-            Database.VoegMeerToe(vaar);
+          return  Database.VoegMeerToe(vaar);
         }
 
         public static bool VoegKlantToe(Klant klant)
         {
-            Database.VoegKlantToe(klant);
+          return  Database.VoegKlantToe(klant);
         }
 
         public static int KrijgActieRadius(Motorboot boot)
@@ -50,8 +50,9 @@ namespace LifePerformanceMitch
         public static void Update()
         {
             klanten = Database.KrijgKlanten();
-            Contractlijst = Database.KrijfHuurcontracts();
+            Contractlijst = Database.KrijgHuurcontracts();
             Vaargebieden = Database.KrijgVaargebiedens();
+            Huurlijst = Database.KrijgHuurlijst();
 
         }
     }

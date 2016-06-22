@@ -8,9 +8,11 @@ namespace LifePerformanceMitch.Model
 {
    public class Klant
     {
-       public Klant()
+       public Klant(int id , string naam , string emailadres)
        {
-           
+           Id = id;
+           Naam = naam;
+           Emailadres = emailadres;
        }
         public int Id { get; set; }
         public string Naam { get; set; }

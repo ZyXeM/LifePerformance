@@ -8,9 +8,14 @@ namespace LifePerformanceMitch.Model
 {
    public class Vaargebieden
     {
-       public Vaargebieden()
+       public Vaargebieden(double dagprijs,string naam,int id , int booten)
        {
-           
+           Dagprijs = dagprijs;
+           Naam = naam;
+           Id = id;
+           Motor = motor;
+           Spier = spier;
+
        }
         public double Dagprijs { get; set; }
        public string Naam { get; set; }
