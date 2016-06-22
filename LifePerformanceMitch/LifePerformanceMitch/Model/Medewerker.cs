@@ -18,5 +18,6 @@ namespace LifePerformanceMitch.Model
         public int Id { get; set; }
         public string Naam { get; set; }
         public string Wachtwoord { get; set; }
+        public  int Admin { get; set; }
     }
 }

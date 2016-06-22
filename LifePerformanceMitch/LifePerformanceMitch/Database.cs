@@ -159,12 +159,126 @@ namespace TweakersRemake
 
         public static bool VoegHuurcontractToe(Huurcontract huurcontract)
         {
-            
+            try
+            {
+                string str = "insert into huurcontract values(:id ,:klant , :datetot , :datevan)";
+                OracleCommand cmd = new OracleCommand(str);
+                cmd.Parameters.Add("id", OracleDbType.Int16);
+                int huurint = GetNextID("huurcontract");
+                cmd.Parameters["id"].Value = GetNextID("huurcontract");
+                cmd.Parameters.Add("klant", OracleDbType.Int16);
+                cmd.Parameters["klant"].Value = huurcontract.Klant.Id;
+                cmd.Parameters.Add("datetot", OracleDbType.Date);
+                cmd.Parameters["datetot"].Value = huurcontract.Datum_Tot;
+                cmd.Parameters.Add("datevan", OracleDbType.Date);
+                cmd.Parameters["datevan"].Value = huurcontract.Datum_Vanaf;
+
+                foreach (var h in huurcontract.Huurlijst)
+                {
+                    if (h is Artikel)
+                    {
+                        if (!VoegArtikelConnectieToe(huurint,((Artikel)h).Id))
+                        {
+                            return false;
+                        }
+                    }else if (h is Boot)
+                    {
+                        if (!VoegBootConnectieToe(huurint, h.Naam))
+                        
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static bool VoegArtikelConnectieToe(int huurId,int ArtikelId)
+        {
+            try
+            {
+                string str = "insert into Artikel_huurcontract values(:hid , :bid)";
+                OracleCommand cmd = new OracleCommand(str);
+                cmd.Parameters.Add("hid", OracleDbType.Int16);
+                cmd.Parameters["hid"].Value = huurId;
+                cmd.Parameters.Add("bid", OracleDbType.Int16);
+                cmd.Parameters["bid"].Value = ArtikelId;
+                cmd.ExecuteNonQuery();
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public static bool VoegBootConnectieToe(int huurId, string BootId)
+        {
+            try
+            {
+                string str = "insert into boot_huurcontract values(:hid , :bid)";
+                OracleCommand cmd = new OracleCommand(str);
+                cmd.Parameters.Add("hid", OracleDbType.Int16);
+                cmd.Parameters["hid"].Value = huurId;
+                cmd.Parameters.Add("bid", OracleDbType.Varchar2);
+                cmd.Parameters["bid"].Value = BootId;
+                cmd.ExecuteNonQuery();
+                return true;
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public static List<Huurcontract> KrijgHuurcontracts()
         {
+            try
+            {
+                List<Huurcontract> huurcontracten = new List<Huurcontract>();
+                string str = "Select * from huurcontract";
+                OracleCommand cmd = new OracleCommand(str);
+                OracleDataReader Read = cmd.ExecuteReader();
+                while (Read.Read())
+                {
+                    List<Huur> huurl = Database.KrijgHuurLijst(Read.GetInt16(0));
+                    Klant klant = Database.KrijgKlant(Read.GetInt16(1));
+                    Huurcontract huur = new Huurcontract(Read.GetInt16(0), Read.GetDateTime(2),Read.GetDateTime(3),huurl, klant);
+                }
+
+                return huurcontracten;
+
+            }
+            catch (Exception)
+            {
+                return null;
+            }
             
+        }
+
+        private static Klant KrijgKlant(int id)
+        {
+            try
+            {
+                string str = "select * from klant  where Id =  " + id;
+                OracleCommand cmd = new OracleCommand(str);
+                OracleDataReader Read = cmd.ExecuteReader();
+                Read.Read();
+                Klant klant = new Klant(Read.GetInt16(0), Read.GetString(1), Read.GetString(2));
+                return klant;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public static List<Vaargebieden> KrijgVaargebiedens()
@@ -210,7 +324,7 @@ namespace TweakersRemake
             }
         }
 
-        public static List<Huur> KrijghuurLijst()
+        public static List<Huur> KrijgHuurLijst()
         {
             try
             {
@@ -248,6 +362,45 @@ namespace TweakersRemake
                 return null;
             }
             
+        }
+        public static List<Huur> KrijgHuurLijst(int id)
+        {
+            try
+            {
+                List<Huur> list = new List<Huur>();
+                string str = "select * from Boot b join Boot_huurcontract bh where b.motor = 0 and bh.huurcontract_ID = "+ id;
+                OracleCommand cmd = new OracleCommand(str);
+                OracleDataReader Read = cmd.ExecuteReader();
+                while (Read.Read())
+                {
+                    Spierboot boot = new Spierboot(Read.GetString(0), Read.GetDouble(2), Read.GetString(3));
+                    list.Add(boot);
+                }
+                str = "select * from Boot b join Boot_huurcontract bh where b.motor = 1 and bh.huurcontract_ID = " + id;
+                cmd = new OracleCommand(str);
+                Read = cmd.ExecuteReader();
+                while (Read.Read())
+                {
+                    Motorboot boot = new Motorboot(Read.GetString(0), Read.GetDouble(2), Read.GetString(3),
+                        Read.GetInt16(1));
+                    list.Add(boot);
+                }
+
+                str = "select * from Artikelen A join Artikelen_huurcontract AH where AH.Huurcontract_ID = "+id;
+                cmd = new OracleCommand(str);
+                Read = cmd.ExecuteReader();
+                while (Read.Read())
+                {
+                    Artikel boot = new Artikel(Read.GetInt16(0), Read.GetString(1), Read.GetDouble(2));
+                    list.Add(boot);
+                }
+                return list;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
         }
 
 

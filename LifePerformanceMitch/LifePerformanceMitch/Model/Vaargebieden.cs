@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms.VisualStyles;
 
 namespace LifePerformanceMitch.Model
 {
@@ -13,9 +14,22 @@ namespace LifePerformanceMitch.Model
            Dagprijs = dagprijs;
            Naam = naam;
            Id = id;
-           Motor = motor;
-           Spier = spier;
-
+           if (booten == 2)
+           {
+               Motor = true;
+               Spier = true;
+           }
+           else if (booten == 1)
+           {
+               Motor = true;
+               Spier = false;
+           }
+           else
+           {
+               Motor = false;
+               Spier = true;
+           }
+        
        }
         public double Dagprijs { get; set; }
        public string Naam { get; set; }
