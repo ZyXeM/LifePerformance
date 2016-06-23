@@ -16,6 +16,22 @@ namespace LifePerformanceMitch
         public HuurcontractForm()
         {
             InitializeComponent();
+            Administratie.Update();
+            foreach (var VARIABLE in Administratie.Huurlijst)
+            {
+                if (VARIABLE is Boot)
+                {
+                    BootenLbx.Items.Add(VARIABLE);
+                }
+                if (VARIABLE is Artikel)
+                {
+                    ArtikelenLbx.Items.Add(VARIABLE);
+                }
+            }
+            foreach (var VARIABLE in Administratie.klanten)
+            {
+                KlantCx.Items.Add(VARIABLE);
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -38,12 +54,17 @@ namespace LifePerformanceMitch
 
         private void ActieBtn_Click(object sender, EventArgs e)
         {
-            if (BootenLbx.SelectedIndex > 0)
+            if (BootenLbx.SelectedIndex >= 0)
             {
                 //CHecked of de naam van het huurcontract voorkomt in de lijst en een motorboot is
-                if (
-                    Administratie.Huurlijst.Find(m => m.Naam.Contains(((Huur) BootenLbx.SelectedItem).Naam)) is
-                        Motorboot)
+                Motorboot huur =  BootenLbx.SelectedItem as Motorboot;  
+              
+
+
+
+
+                if (huur
+                    != null)
                         
                 {
                     //Berekent de actieradius met de motorboot uit de lijst
@@ -52,6 +73,22 @@ namespace LifePerformanceMitch
                 }
             }
 
+        }
+
+        private void HuurcontractBtn_Click(object sender, EventArgs e)
+        {
+            List<Huur> list = new List<Huur>();
+            foreach (var VARIABLE in GekozenLbx.Items)
+            {
+                list.Add(((Huur)VARIABLE));
+            }
+            if (
+                Administratie.VoegHuurcontractToe(new Huurcontract(VanDtp.Value, TotDtp.Value, list,
+                    (Klant) KlantCx.SelectedItem)))
+            {
+                this.Close();
+            }
+            
         }
     }
 }

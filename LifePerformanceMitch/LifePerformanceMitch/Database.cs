@@ -79,7 +79,7 @@ namespace TweakersRemake
                     return Data.GetInt32(0) + 1;
 
                 }
-                catch (OracleException)
+                catch (Exception)
                 {
 
                     return 1;
@@ -102,6 +102,7 @@ namespace TweakersRemake
                 try
                 {
                     OracleCommand cmd = new OracleCommand(str);
+                    cmd.Connection = Conn;
                     cmd.Parameters.Add("id", OracleDbType.Int16);
                     cmd.Parameters["id"].Value = GetNextID("Vaargebieden");
                     cmd.Parameters.Add("naam", OracleDbType.Varchar2);
@@ -117,6 +118,7 @@ namespace TweakersRemake
                     {
                         type = 2;
                     }
+                    cmd.Parameters.Add("booten", OracleDbType.Int16);
                     cmd.Parameters["booten"].Value = type;
                     cmd.ExecuteNonQuery();
                     return true;
@@ -132,12 +134,13 @@ namespace TweakersRemake
 
         public static bool VoegKlantToe(Klant klant)
         {
-            string str = "Insert into Klant values(:id , :naam , :email)";
+            string str = "Insert into Klant values(:id , :naam , :email )";
             if (Openconnecion())
             {
                 try
                 {
                     OracleCommand cmd = new OracleCommand(str);
+                    cmd.Connection = Conn;
                     cmd.Parameters.Add("id", OracleDbType.Int16);
                     cmd.Parameters["id"].Value = GetNextID("Klant");
                     cmd.Parameters.Add("naam", OracleDbType.Varchar2);
@@ -166,6 +169,7 @@ namespace TweakersRemake
                 Openconnecion();
                 string str = "insert into huurcontract values(:id ,:klant , :datetot , :datevan)";
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 cmd.Parameters.Add("id", OracleDbType.Int16);
                 int huurint = GetNextID("huurcontract");
                 cmd.Parameters["id"].Value = GetNextID("huurcontract");
@@ -175,7 +179,7 @@ namespace TweakersRemake
                 cmd.Parameters["datetot"].Value = huurcontract.Datum_Tot;
                 cmd.Parameters.Add("datevan", OracleDbType.Date);
                 cmd.Parameters["datevan"].Value = huurcontract.Datum_Vanaf;
-
+                cmd.ExecuteNonQuery();
                 foreach (var h in huurcontract.Huurlijst)
                 {
                     if (h is Artikel)
@@ -209,8 +213,9 @@ namespace TweakersRemake
             try
             {
                 Openconnecion();
-                string str = "select * from Artikel_huurcontract where huurcontract_ID = :hid and Artikel_ID = :aid";
+                string str = "select * from Artikelen_huurcontract where huurcontract_ID = :hid and Artikel_ID = :aid";
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 cmd.Parameters.Add("hid", OracleDbType.Int16);
                 cmd.Parameters["hid"].Value = huurId;
                 cmd.Parameters.Add("aid", OracleDbType.Int16);
@@ -236,6 +241,7 @@ namespace TweakersRemake
                 Openconnecion();
                 string str = "select * from boot_huurcontract where huurcontract_ID = :hid and boot_ID = :aid";
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 cmd.Parameters.Add("hid", OracleDbType.Int16);
                 cmd.Parameters["hid"].Value = huurId;
                 cmd.Parameters.Add("aid", OracleDbType.Varchar2);
@@ -258,12 +264,14 @@ namespace TweakersRemake
             try
             {
                 Openconnecion();
-                string str = "insert into Artikel_huurcontract values(:hid , :bid , :hoeveel)";
+                string str = "insert into Artikelen_huurcontract values(:bid , :hid , :hoeveel)";
                 OracleCommand cmd = new OracleCommand(str);
-                cmd.Parameters.Add("hid", OracleDbType.Int16);
-                cmd.Parameters["hid"].Value = huurId;
+                cmd.Connection = Conn;
                 cmd.Parameters.Add("bid", OracleDbType.Int16);
                 cmd.Parameters["bid"].Value = ArtikelId;
+                cmd.Parameters.Add("hid", OracleDbType.Int16);
+                cmd.Parameters["hid"].Value = huurId;
+                
                 cmd.Parameters.Add("hoeveel", OracleDbType.Int16);
                 int? i = CheckBestaand(huurId, ArtikelId);
                 if(i == null)
@@ -286,20 +294,23 @@ namespace TweakersRemake
             try
             {
                 Openconnecion();
-                string str = "insert into boot_huurcontract values(:hid , :bid)";
+                string str = "insert into boot_huurcontract values(:bid , :hid , :hoeveel )";
                 OracleCommand cmd = new OracleCommand(str);
-                cmd.Parameters.Add("hid", OracleDbType.Int16);
-                cmd.Parameters["hid"].Value = huurId;
+                cmd.Connection = Conn;
                 cmd.Parameters.Add("bid", OracleDbType.Varchar2);
                 cmd.Parameters["bid"].Value = BootId;
+                cmd.Parameters.Add("hid", OracleDbType.Int16);
+                cmd.Parameters["hid"].Value = huurId;
+              
                 int? i = CheckBestaandBoot(huurId, BootId);
-                 cmd.Parameters["hoeveel"].Value = i;
+                
                 if (i == null)
                 {
                     i = 1;
                 }
-                cmd.Parameters["hoeveel"].Value = i;
                 cmd.Parameters.Add("hoeveel", OracleDbType.Int16);
+                cmd.Parameters["hoeveel"].Value = i;
+                
                 cmd.ExecuteNonQuery();
                 return true;
 
@@ -318,12 +329,14 @@ namespace TweakersRemake
                 List<Huurcontract> huurcontracten = new List<Huurcontract>();
                 string str = "Select * from huurcontract";
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
                     List<Huur> huurl = Database.KrijgHuurLijst(Read.GetInt16(0));
                     Klant klant = Database.KrijgKlant(Read.GetInt16(1));
                     Huurcontract huur = new Huurcontract(Read.GetInt16(0), Read.GetDateTime(2),Read.GetDateTime(3),huurl, klant);
+                    huurcontracten.Add(huur);
                 }
 
                 return huurcontracten;
@@ -343,6 +356,7 @@ namespace TweakersRemake
                 Openconnecion();
                 string str = "select * from klant  where Id =  " + id;
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 OracleDataReader Read = cmd.ExecuteReader();
                 Read.Read();
                 Klant klant = new Klant(Read.GetInt16(0), Read.GetString(1), Read.GetString(2));
@@ -362,6 +376,7 @@ namespace TweakersRemake
                 List<Vaargebieden> list = new List<Vaargebieden>();
                 string str = "select * from Vaargebieden";
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
@@ -383,8 +398,9 @@ namespace TweakersRemake
             {
                 Openconnecion();
                 List<Klant> list = new List<Klant>();
-                string str = "select * from Vaargebieden";
+                string str = "select * from Klant";
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
@@ -407,6 +423,7 @@ namespace TweakersRemake
                 List<Huur> list = new List<Huur>();
                 string str = "select * from Boot where motor = 0";
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
@@ -415,6 +432,7 @@ namespace TweakersRemake
                 }
                 str = "select * from Boot where motor = 1";
                 cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
@@ -425,6 +443,7 @@ namespace TweakersRemake
 
                 str = "select * from Artikelen";
                 cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
@@ -445,16 +464,18 @@ namespace TweakersRemake
             {
                 Openconnecion();
                 List<Huur> list = new List<Huur>();
-                string str = "select * from Boot b join Boot_huurcontract bh where b.motor = 0 and bh.huurcontract_ID = "+ id;
+                string str = "select b.* from Boot b join Boot_huurcontract bh on bh.boot_ID = b.naam where b.motor = 0 and bh.huurcontract_ID = "+ id;
                 OracleCommand cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
                     Spierboot boot = new Spierboot(Read.GetString(0), Read.GetDecimal(2), Read.GetString(3));
                     list.Add(boot);
                 }
-                str = "select * from Boot b join Boot_huurcontract bh where b.motor = 1 and bh.huurcontract_ID = " + id;
+                str = "select b.* from Boot b join Boot_huurcontract bh  on bh.boot_ID = b.naam where b.motor = 1 and bh.huurcontract_ID = " + id;
                 cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
@@ -463,8 +484,9 @@ namespace TweakersRemake
                     list.Add(boot);
                 }
 
-                str = "select * from Artikelen A join Artikelen_huurcontract AH where AH.Huurcontract_ID = "+id;
+                str = "select A.* from Artikelen A join Artikelen_huurcontract AH on   AH.Artikelen_ID = A.id where AH.Huurcontract_ID = " + id;
                 cmd = new OracleCommand(str);
+                cmd.Connection = Conn;
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {

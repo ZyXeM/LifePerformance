@@ -77,6 +77,7 @@
             this.HuurcontractLbx.Name = "HuurcontractLbx";
             this.HuurcontractLbx.Size = new System.Drawing.Size(143, 238);
             this.HuurcontractLbx.TabIndex = 2;
+            this.HuurcontractLbx.SelectedIndexChanged += new System.EventHandler(this.HuurcontractLbx_SelectedIndexChanged);
             // 
             // HuurLbx
             // 
@@ -154,6 +155,7 @@
             this.BudgetBtn.TabIndex = 11;
             this.BudgetBtn.Text = "Budget check";
             this.BudgetBtn.UseVisualStyleBackColor = true;
+            this.BudgetBtn.Click += new System.EventHandler(this.BudgetBtn_Click);
             // 
             // MeerBtn
             // 

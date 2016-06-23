@@ -77,6 +77,7 @@
     <Compile Include="Model\Klant.cs" />
     <Compile Include="Model\Medewerker.cs" />
     <Compile Include="Model\Motorboot.cs" />
+    <Compile Include="Model\NotEnoughMoneyException.cs" />
     <Compile Include="Model\Spierboot.cs" />
     <Compile Include="Model\Vaargebieden.cs" />
     <Compile Include="Program.cs" />

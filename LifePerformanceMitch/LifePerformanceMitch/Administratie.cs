@@ -25,14 +25,20 @@ namespace LifePerformanceMitch
             if (Database.VoegMeerToe(vaar))
             {
                 Update();
-                return;
+                return true;
             }
+            return false;
 
         }
 
         public static bool VoegKlantToe(Klant klant)
         {
-          return  Database.VoegKlantToe(klant);
+            if (Database.VoegKlantToe(klant))
+            {
+                Update();
+                return true;
+            }
+            return false;
         }
 
         public static int KrijgActieRadius(Motorboot boot)
@@ -42,26 +48,25 @@ namespace LifePerformanceMitch
 
         public static bool VoegHuurcontractToe(Huurcontract huur)
         {
-            return Database.VoegHuurcontractToe(huur);
+            if (Database.VoegHuurcontractToe(huur))
+            {
+                Update();
+                return true;
+            }
+            return false;
         }
 
         public static bool ExporteerHuurcontract(Huurcontract huur)
         {
             try
             {
-                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-                saveFileDialog1.Filter = "Textfile|*.txt";
                
-                saveFileDialog1.ShowDialog();
-
-                // If the file name is not an empty string open it for saving.
-                if (saveFileDialog1.FileName != "")
+                SaveFileDialog save = new SaveFileDialog();
+                save.FileName = "DefaultOutputName.txt";
+                save.Filter = "Text File | *.txt";
+                if (save.ShowDialog() == DialogResult.OK)
                 {
-                    // Saves the Image via a FileStream created by the OpenFile method.
-                    System.IO.FileStream fs =
-                        (System.IO.FileStream) saveFileDialog1.OpenFile();
-
-                    StreamWriter s = new StreamWriter(fs);
+                    StreamWriter s = new StreamWriter(save.OpenFile());
                     s.WriteLine("Huurder : " + huur.Klant.Naam);
                     s.WriteLine("Huurcontract vanaf : " + huur.Datum_Vanaf);
                     s.WriteLine("Huurcontract tot : " + huur.Datum_Tot);
@@ -72,19 +77,26 @@ namespace LifePerformanceMitch
                     }
 
 
-                    fs.Close();
+                    s.Close();
+                }
+                // If the file name is not an empty string open it for saving.
+                    
+                
+                    // Saves the Image via a FileStream created by the OpenFile method.
+                  
                    
                 }
-                return true;
-
-            }
             catch (Exception)
             {
                 return false;
             }
+            return true;
+
+            }
+           
            
             
-        }
+        
 
         public static List<int> BerekenGevoel(HuurcontractForm huur)
         {
@@ -112,35 +124,54 @@ namespace LifePerformanceMitch
             foreach (var VARIABLE in vaar)
             {
                 Budget = Budget - VARIABLE.Dagprijs*dagen;
+                if (Budget < 0)
+                {
+                    throw new NotEnoughMoneyException("Te weinig geld");
+                }
             }
             foreach (var VARIABLE in huur.Huurlijst)
             {
                 Budget = Budget - VARIABLE.Huurprijs * dagen;
+                if (Budget < 0)
+                {
+                    throw  new NotEnoughMoneyException("Te weinig geld");
+                }
             }
-            while (budget >= 0)
+            while (Budget > 0)
             {
+                int i = 0;
                 foreach (var VARIABLE in huur.Huurlijst)
                 {
                     if (VARIABLE is Boot)
                     {
-                        
-                        if (budget - 1*dagen >= 0 && meren < 6 || ((Boot)VARIABLE).Naam == "Kano")
+                        if (VARIABLE.Naam != "Kano")
                         {
-                            budget = budget - 1*dagen;
+                            i++;
                         }
-                        else
-                        if (budget - (decimal) (1.50)*dagen >= 0 && meren > 5 && ((Boot)VARIABLE).Naam != "Kano")
-                        {
-                            budget = budget - 1*dagen;
-                        }
-                        if (meren >= 12)
-                        {
-                            break;
-                        }
+                      
                     }
                     
                 }
-                meren = meren + 1;
+                if (Budget - 1 * dagen * i >= 0 && meren < 6 )
+                {
+                    Budget = Budget - 1 * dagen * i;
+                    meren = meren + 1;
+                }
+                else if (Budget - (decimal) (1.50)*dagen*i >= 0 && meren > 5)
+                {
+                    Budget = Budget - (decimal) 1.50*dagen*i;
+                    meren = meren + 1;
+                }
+                else
+                {
+                    break;
+                }
+               
+                if (meren >= 12)
+                {
+                    break;
+                }
+              
             }
             return meren;
 

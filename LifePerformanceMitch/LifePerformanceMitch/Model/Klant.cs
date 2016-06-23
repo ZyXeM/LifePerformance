@@ -23,5 +23,10 @@ namespace LifePerformanceMitch.Model
         public int Id { get; set; }
         public string Naam { get; set; }
         public string Emailadres { get; set; }
+
+       public override string ToString()
+       {
+           return Naam;
+       }
     }
 }

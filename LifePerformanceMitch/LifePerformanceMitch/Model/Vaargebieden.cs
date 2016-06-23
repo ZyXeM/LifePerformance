@@ -58,5 +58,10 @@ namespace LifePerformanceMitch.Model
        public int  Id { get; set; }
        public bool Motor { get; set; }
         public bool Spier { get; set; }
+
+       public override string ToString()
+       {
+           return Naam;
+       }
     }
 }

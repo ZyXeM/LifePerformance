@@ -26,7 +26,7 @@ namespace LifePerformanceMitch
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (listBox1.SelectedIndex > 0)
+            if (listBox1.SelectedIndex >= 0)
             {
                 listBox2.Items.Add(listBox1.SelectedItem);
                 listBox1.Items.RemoveAt(listBox1.SelectedIndex);
@@ -35,14 +35,23 @@ namespace LifePerformanceMitch
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (listBox2.Items.Count > 0)
+            if (listBox2.Items.Count >= 0)
             {
+                //Alle vaargebieden die er in de database staan behaleven de friese meren En dan de meren berekenen
                 List<Vaargebieden> vaar = new List<Vaargebieden>();
                 foreach (var v in listBox2.Items)
                 {
                     vaar.Add(v as Vaargebieden);
                 }
-                Administratie.KrijgBevarenMeer(Huurcontract, BudgetNmrc.Value, vaar);
+               textBox1.Clear();
+                try
+                {
+                    textBox1.Text = Administratie.KrijgBevarenMeer(Huurcontract, BudgetNmrc.Value, vaar).ToString();
+                }
+                catch (NotEnoughMoneyException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
             }
         }
     }

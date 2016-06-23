@@ -16,11 +16,24 @@ namespace LifePerformanceMitch
         public MainForm()
         {
             InitializeComponent();
+           Administratie.Update();
+            update();
+
+        }
+
+        public void update()
+        {
+            HuurcontractLbx.Items.Clear();
+            HuurLbx.Items.Clear();
+            foreach (var VARIABLE in Administratie.Contractlijst)
+            {
+                HuurcontractLbx.Items.Add(VARIABLE);
+            }
         }
 
         private void ExportBtn_Click(object sender, EventArgs e)
         {
-            if(HuurcontractLbx.SelectedIndex > 0)
+            if(HuurcontractLbx.SelectedIndex >= 0)
             {
                 if (Administratie.ExporteerHuurcontract((Huurcontract)HuurcontractLbx.SelectedItem))
                 {
@@ -36,7 +49,8 @@ namespace LifePerformanceMitch
             
                 huurcontract.ShowDialog();
             Administratie.Update();
-            
+            update();
+
         }
 
         private void KlantBtn_Click(object sender, EventArgs e)
@@ -45,6 +59,7 @@ namespace LifePerformanceMitch
             {
                 Administratie.VoegKlantToe(new Klant(NaamTb.Text, EmailTb.Text));
             }
+
         }
 
         private void MeerBtn_Click(object sender, EventArgs e)
@@ -52,15 +67,35 @@ namespace LifePerformanceMitch
             if (MeerNaamTbx.Text != "")
             {
                 int i = 2;
-                if (MotorChk.Checked)
+                if (MotorChk.Checked && !SpierChk.Checked)
                 {
                     i = 1;
                 }
-                if (SpierChk.Checked)
+                if (SpierChk.Checked && !MotorChk.Checked)
                 {
                     i = 0;
                 }
                 Administratie.VoegMeerToe(new Vaargebieden(PrijsNm.Value,MeerNaamTbx.Text,i));
+            }
+        }
+
+        private void HuurcontractLbx_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (HuurcontractLbx.SelectedIndex >= 0)
+            {
+                foreach (var VARIABLE in ((Huurcontract)HuurcontractLbx.SelectedItem).Huurlijst)
+                {
+                    HuurLbx.Items.Add(VARIABLE);
+                }
+            }
+        }
+
+        private void BudgetBtn_Click(object sender, EventArgs e)
+        {
+            if (HuurcontractLbx.SelectedIndex >= 0)
+            {
+                BudgetForm form = new BudgetForm((Huurcontract) HuurcontractLbx.SelectedItem);
+                form.ShowDialog();
             }
         }
     }

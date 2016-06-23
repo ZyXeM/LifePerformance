@@ -157,6 +157,7 @@
             this.HuurcontractBtn.TabIndex = 12;
             this.HuurcontractBtn.Text = "Maak aan";
             this.HuurcontractBtn.UseVisualStyleBackColor = true;
+            this.HuurcontractBtn.Click += new System.EventHandler(this.HuurcontractBtn_Click);
             // 
             // KlantCx
             // 
