@@ -33,27 +33,35 @@ namespace LifePerformanceMitch.Tests
         [TestMethod()]
         public void VoegHuurcontractToeTest()
         {
-            Assert.Fail();
+            List<Huur> huurs = new List<Huur>();
+            huurs.Add(new Motorboot("Motorboot",15,"Kruiser",20));
+            huurs.Add(new Artikel(1,1,"Zwemvest",1));
+            Huurcontract huur = new Huurcontract(DateTime.Now, DateTime.Now.AddDays(2), huurs,new Klant(1,"Klant","KlantMail@mail"));
+            Assert.AreEqual(Administratie.VoegHuurcontractToe(huur),true);
         }
 
-        [TestMethod()]
-        public void ExporteerHuurcontractTest()
-        {
-            Assert.Fail();
-        }
 
-        [TestMethod()]
-        public void BerekenGevoelTest()
-        {
-            Assert.Fail();
-        }
+    
 
      
 
         [TestMethod()]
         public void KrijgBevarenMeerTest()
         {
-            Assert.Fail();
+            List<Huur> huurl = new List<Huur>();
+            huurl.Add(new Motorboot("Motor",10,"Type",5));
+            Huurcontract huur = new Huurcontract(DateTime.Now, DateTime.Now.AddDays(5),huurl,new Klant("Mitch","Test") );
+            Assert.AreEqual(Administratie.KrijgBevarenMeer(huur, 50, new List<Vaargebieden>()),0);
+            huurl = new List<Huur>();
+            huurl.Add(new Motorboot("Motor", 10, "Type", 5));
+            huur = new Huurcontract(DateTime.Now, DateTime.Now.AddDays(5), huurl, new Klant("Mitch", "Test"));
+            Assert.AreEqual(Administratie.KrijgBevarenMeer(huur, 60, new List<Vaargebieden>()), 2);
+            //2 boten
+            huurl.Clear();
+            huurl.Add(new Motorboot("Motor", 10, "Type", 5));
+            huurl.Add(new Motorboot("Motor", 10, "Type", 5));
+            huur = new Huurcontract(DateTime.Now, DateTime.Now.AddDays(5), huurl, new Klant("Mitch", "Test"));
+            Assert.AreEqual(Administratie.KrijgBevarenMeer(huur, 100, new List<Vaargebieden>()), 0);
         }
     }
 }

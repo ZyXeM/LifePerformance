@@ -64,7 +64,11 @@ namespace TweakersRemake
             //Dit is commentaar
 
         }
-
+        /// <summary>
+        /// Geeft de eerste volgende vrije ID van een bepaalde table
+        /// </summary>
+        /// <param name="Table"></param>
+        /// <returns></returns>
         public static int GetNextID(string Table)
         {
             string str = "Select Max(ID) From " + Table;
@@ -93,7 +97,11 @@ namespace TweakersRemake
 
 
         }
-
+        /// <summary>
+        /// Voegt een meer toe aan de database
+        /// </summary>
+        /// <param name="vaar"></param>
+        /// <returns></returns>
         public static bool VoegMeerToe(Vaargebieden vaar)
         {
             string str = "Insert into vaargebieden values(:id , :naam , :dagprijs , :booten)";
@@ -131,7 +139,11 @@ namespace TweakersRemake
             }
             return false;
         }
-
+        /// <summary>
+        /// Voegt klant toe aan de database
+        /// </summary>
+        /// <param name="klant"></param>
+        /// <returns></returns>
         public static bool VoegKlantToe(Klant klant)
         {
             string str = "Insert into Klant values(:id , :naam , :email )";
@@ -161,7 +173,11 @@ namespace TweakersRemake
             }
             return false;
         }
-
+        /// <summary>
+        /// Voegt huurcontract toe aan database
+        /// </summary>
+        /// <param name="huurcontract"></param>
+        /// <returns></returns>
         public static bool VoegHuurcontractToe(Huurcontract huurcontract)
         {
             try
@@ -207,7 +223,12 @@ namespace TweakersRemake
             }
         }
 
-
+        /// <summary>
+        /// Checked of de connectie vna het huurcontract en artikel al bestaat, zo ja dan hoeveel er al zijn
+        /// </summary>
+        /// <param name="huurId"></param>
+        /// <param name="ArtikelId"></param>
+        /// <returns></returns>
         public static int? CheckBestaand(int huurId,int ArtikelId)
         {
             try
@@ -233,7 +254,12 @@ namespace TweakersRemake
                 return null;
             }
         }
-
+        /// <summary>
+        /// Checked of de connectie vna het huurcontract en Boot al bestaat, zo ja dan hoeveel er al zijn
+        /// </summary>
+        /// <param name="huurId"></param>
+        /// <param name="bootId"></param>
+        /// <returns></returns>
         public static int? CheckBestaandBoot(int huurId, string bootId)
         {
             try
@@ -259,6 +285,12 @@ namespace TweakersRemake
                 return null;
             }
         }
+        /// <summary>
+        /// Voegt de connectie tussen een contact en een Artikel toe
+        /// </summary>
+        /// <param name="huurId"></param>
+        /// <param name="ArtikelId"></param>
+        /// <returns></returns>
         public static bool VoegArtikelConnectieToe(int huurId,int ArtikelId)
         {
             try
@@ -288,7 +320,12 @@ namespace TweakersRemake
                 return false;
             }
         }
-
+        /// <summary>
+        /// Voegt een connectie tussen de huurcontract en een boot toe
+        /// </summary>
+        /// <param name="huurId"></param>
+        /// <param name="BootId"></param>
+        /// <returns></returns>
         public static bool VoegBootConnectieToe(int huurId, string BootId)
         {
             try
@@ -320,7 +357,10 @@ namespace TweakersRemake
                 return false;
             }
         }
-
+        /// <summary>
+        /// Haal alle huurcontracten op
+        /// </summary>
+        /// <returns></returns>
         public static List<Huurcontract> KrijgHuurcontracts()
         {
             try
@@ -333,6 +373,7 @@ namespace TweakersRemake
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
+                    //Haalt de huurlijst op van elke gevonden huurcontract
                     List<Huur> huurl = Database.KrijgHuurLijst(Read.GetInt16(0));
                     Klant klant = Database.KrijgKlant(Read.GetInt16(1));
                     Huurcontract huur = new Huurcontract(Read.GetInt16(0), Read.GetDateTime(2),Read.GetDateTime(3),huurl, klant);
@@ -348,7 +389,11 @@ namespace TweakersRemake
             }
             
         }
-
+        /// <summary>
+        /// Geeft een klant met een bepaalde Id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         private static Klant KrijgKlant(int id)
         {
             try
@@ -367,7 +412,10 @@ namespace TweakersRemake
                 return null;
             }
         }
-
+        /// <summary>
+        /// Geeft alle vaargebieden die er in de database staan
+        /// </summary>
+        /// <returns></returns>
         public static List<Vaargebieden> KrijgVaargebiedens()
         {
             try
@@ -391,7 +439,10 @@ namespace TweakersRemake
                 return null;
             }
         }
-
+        /// <summary>
+        /// Krijg alle klanten in de database
+        /// </summary>
+        /// <returns></returns>
         public static List<Klant> KrijgKlanten()
         {
             try
@@ -414,7 +465,10 @@ namespace TweakersRemake
                 return null;
             }
         }
-
+        /// <summary>
+        /// Krijg een lijst van alle objecten die gehuurd kunnen worden
+        /// </summary>
+        /// <returns></returns>
         public static List<Huur> KrijgHuurLijst()
         {
             try
@@ -458,6 +512,11 @@ namespace TweakersRemake
             }
             
         }
+        /// <summary>
+        /// Krijg alle huur objecten de gekoppeld staan aan een huurcontract
+        /// </summary>
+        /// <param name="id">Huurcontract ID</param>
+        /// <returns></returns>
         public static List<Huur> KrijgHuurLijst(int id)
         {
             try

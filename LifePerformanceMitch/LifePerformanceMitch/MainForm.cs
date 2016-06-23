@@ -83,6 +83,7 @@ namespace LifePerformanceMitch
         {
             if (HuurcontractLbx.SelectedIndex >= 0)
             {
+                HuurLbx.Items.Clear();
                 foreach (var VARIABLE in ((Huurcontract)HuurcontractLbx.SelectedItem).Huurlijst)
                 {
                     HuurLbx.Items.Add(VARIABLE);

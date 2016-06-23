@@ -36,7 +36,7 @@ namespace LifePerformanceMitch
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (BootenLbx.SelectedIndex > 0)
+            if (BootenLbx.SelectedIndex >= 0)
             {
                 GekozenLbx.Items.Add(BootenLbx.SelectedItem);
             }
@@ -45,7 +45,7 @@ namespace LifePerformanceMitch
 
         private void ArtikelenBtn_Click(object sender, EventArgs e)
         {
-            if (ArtikelenLbx.SelectedIndex > 0)
+            if (ArtikelenLbx.SelectedIndex >= 0)
             {
                 GekozenLbx.Items.Add(ArtikelenLbx.SelectedItem);
             }
@@ -82,13 +82,21 @@ namespace LifePerformanceMitch
             {
                 list.Add(((Huur)VARIABLE));
             }
-            if (
-                Administratie.VoegHuurcontractToe(new Huurcontract(VanDtp.Value, TotDtp.Value, list,
-                    (Klant) KlantCx.SelectedItem)))
+            if (TotDtp.Value.CompareTo(VanDtp.Value) > 0)
             {
-                this.Close();
+                
+                if (
+                    Administratie.VoegHuurcontractToe(new Huurcontract(TotDtp.Value, VanDtp.Value, list,
+                        (Klant) KlantCx.SelectedItem)))
+                {
+                    this.Close();
+                }
             }
-            
+            else
+            {
+                MessageBox.Show("Datums Incorrect");
+            }
+
         }
     }
 }
