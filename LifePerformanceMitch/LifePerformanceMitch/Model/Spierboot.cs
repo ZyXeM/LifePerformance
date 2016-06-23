@@ -8,7 +8,7 @@ namespace LifePerformanceMitch.Model
 {
   public  class Spierboot : Boot
     {
-      public Spierboot(string naam,double huurprijs,string type) :base(naam,huurprijs, type)
+      public Spierboot(string naam,decimal huurprijs,string type) :base(naam,huurprijs, type)
       {
           
       }

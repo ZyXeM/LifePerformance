@@ -8,14 +8,14 @@ namespace LifePerformanceMitch.Model
 {
    public class Artikel : Huur
     {
-       public Artikel(int id, int hoeveelheid, string naam, double huurprijs)
+       public Artikel(int id, int hoeveelheid, string naam, decimal huurprijs)
        {
            Id = id;
            Hoeveelheid = hoeveelheid;
            Naam = naam;
            Huurprijs = huurprijs;
        }
-        public Artikel(int id,  string naam, double huurprijs)
+        public Artikel(int id,  string naam, decimal huurprijs)
         {
             Id = id;
            
@@ -26,6 +26,10 @@ namespace LifePerformanceMitch.Model
         public  int Id { get; set; }
        public int Hoeveelheid { get; set; }
        public string Naam { get; set; }
-       public double Huurprijs { get; set; }
+       public decimal Huurprijs { get; set; }
+       public override string ToString()
+       {
+           return "Naam : " + Naam + "Prijs: " + Huurprijs + " " + Hoeveelheid + "X";
+        }
     }
 }

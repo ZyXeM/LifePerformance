@@ -22,7 +22,12 @@ namespace LifePerformanceMitch
          
         public static bool VoegMeerToe(Vaargebieden vaar)
         {
-          return  Database.VoegMeerToe(vaar);
+            if (Database.VoegMeerToe(vaar))
+            {
+                Update();
+                return;
+            }
+
         }
 
         public static bool VoegKlantToe(Klant klant)
@@ -81,7 +86,7 @@ namespace LifePerformanceMitch
             
         }
 
-        public static List<int> BerekenGevoel(Huurcontract huur)
+        public static List<int> BerekenGevoel(HuurcontractForm huur)
         {
             return new List<int>();
         }
@@ -92,6 +97,52 @@ namespace LifePerformanceMitch
             Contractlijst = Database.KrijgHuurcontracts();
             Vaargebieden = Database.KrijgVaargebiedens();
             Huurlijst = Database.KrijgHuurLijst();
+
+        }
+
+        public static int KrijgBevarenMeer(Huurcontract huur, decimal budget, List<Vaargebieden> vaar)
+        {
+            //Ik vraag eerst de dagen tussen de van en tot op en ga daar vervolgens mee rekenen
+            int dagen = 0;
+            int meren = 0;
+            decimal Budget = budget;
+            int overboot = 0;
+          TimeSpan Lengte =  huur.Datum_Vanaf.Subtract(huur.Datum_Tot);
+            dagen = Lengte.Days;
+            foreach (var VARIABLE in vaar)
+            {
+                Budget = Budget - VARIABLE.Dagprijs*dagen;
+            }
+            foreach (var VARIABLE in huur.Huurlijst)
+            {
+                Budget = Budget - VARIABLE.Huurprijs * dagen;
+            }
+            while (budget >= 0)
+            {
+                foreach (var VARIABLE in huur.Huurlijst)
+                {
+                    if (VARIABLE is Boot)
+                    {
+                        
+                        if (budget - 1*dagen >= 0 && meren < 6 || ((Boot)VARIABLE).Naam == "Kano")
+                        {
+                            budget = budget - 1*dagen;
+                        }
+                        else
+                        if (budget - (decimal) (1.50)*dagen >= 0 && meren > 5 && ((Boot)VARIABLE).Naam != "Kano")
+                        {
+                            budget = budget - 1*dagen;
+                        }
+                        if (meren >= 12)
+                        {
+                            break;
+                        }
+                    }
+                    
+                }
+                meren = meren + 1;
+            }
+            return meren;
 
         }
     }

@@ -16,10 +16,22 @@ namespace LifePerformanceMitch.Model
            Id = id;
            Klant = klant;
        }
+        public Huurcontract( DateTime DV, DateTime DT, List<Huur> huur, Klant klant)
+        {
+            Datum_Tot = DT;
+            Datum_Vanaf = DV;
+            Huurlijst = huur;
+            Klant = klant;
+        }
         public  int Id { get; set; }
         public DateTime Datum_Vanaf { get; set; }
         public DateTime Datum_Tot { get; set; }
         public List<Huur> Huurlijst { get; set; } 
         public Klant Klant { get; set; }
+       public override string ToString()
+       {
+           return "Naam :" + Klant.Naam + "Datum: " + Datum_Vanaf + " / " + Datum_Tot;
+       }
     }
+    
 }

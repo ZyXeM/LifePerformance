@@ -8,7 +8,7 @@ namespace LifePerformanceMitch.Model
 {
   public  class Motorboot : Boot
   {
-      public Motorboot(string naam, double huurprijs,string type, int tankinhoud) :base(naam,huurprijs, type)
+      public Motorboot(string naam, decimal huurprijs,string type, int tankinhoud) :base(naam,huurprijs, type)
       {
           Tankinhoud = tankinhoud;
       }

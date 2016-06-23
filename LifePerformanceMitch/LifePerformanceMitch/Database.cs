@@ -11,20 +11,21 @@ namespace TweakersRemake
 {
     public static class Database
     {
-        private static string Connection = "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=fhictora01.fhict.local)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=fhictora)));User ID=dbi323425;PASSWORD=mmk55mmk100;";
+        private static string Connection =
+            "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=fhictora01.fhict.local)(PORT=1521)))(CONNECT_DATA=(SERVER=DEDICATED)(SERVICE_NAME=fhictora)));User ID=dbi323425;PASSWORD=mmk55mmk100;";
 
         private static OracleConnection Conn;
 
-       static Database()
+        static Database()
         {
-           try
-           {
+            try
+            {
                 Conn = new OracleConnection(Connection);
-           }
-           catch (OracleException Ex)
-           {
-               throw;
-           }
+            }
+            catch (OracleException Ex)
+            {
+                throw;
+            }
         }
 
         public static bool Openconnecion()
@@ -63,6 +64,7 @@ namespace TweakersRemake
             //Dit is commentaar
 
         }
+
         public static int GetNextID(string Table)
         {
             string str = "Select Max(ID) From " + Table;
@@ -104,7 +106,7 @@ namespace TweakersRemake
                     cmd.Parameters["id"].Value = GetNextID("Vaargebieden");
                     cmd.Parameters.Add("naam", OracleDbType.Varchar2);
                     cmd.Parameters["naam"].Value = vaar.Naam;
-                    cmd.Parameters.Add("dagprijs", OracleDbType.Double);
+                    cmd.Parameters.Add("dagprijs", OracleDbType.Decimal);
                     cmd.Parameters["dagprijs"].Value = vaar.Dagprijs;
                     int type = 0;
                     if (vaar.Motor)
@@ -142,9 +144,9 @@ namespace TweakersRemake
                     cmd.Parameters["naam"].Value = klant.Naam;
                     cmd.Parameters.Add("email", OracleDbType.Varchar2);
                     cmd.Parameters["email"].Value = klant.Emailadres;
-                  
-                
-                   
+
+
+
                     cmd.ExecuteNonQuery();
                     return true;
                 }
@@ -161,6 +163,7 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 string str = "insert into huurcontract values(:id ,:klant , :datetot , :datevan)";
                 OracleCommand cmd = new OracleCommand(str);
                 cmd.Parameters.Add("id", OracleDbType.Int16);
@@ -177,14 +180,15 @@ namespace TweakersRemake
                 {
                     if (h is Artikel)
                     {
-                        if (!VoegArtikelConnectieToe(huurint,((Artikel)h).Id))
+                        if (!VoegArtikelConnectieToe(huurint, ((Artikel) h).Id))
                         {
                             return false;
                         }
-                    }else if (h is Boot)
+                    }
+                    else if (h is Boot)
                     {
                         if (!VoegBootConnectieToe(huurint, h.Naam))
-                        
+
                         {
                             return false;
                         }
@@ -199,16 +203,74 @@ namespace TweakersRemake
             }
         }
 
+
+        public static int? CheckBestaand(int huurId,int ArtikelId)
+        {
+            try
+            {
+                Openconnecion();
+                string str = "select * from Artikel_huurcontract where huurcontract_ID = :hid and Artikel_ID = :aid";
+                OracleCommand cmd = new OracleCommand(str);
+                cmd.Parameters.Add("hid", OracleDbType.Int16);
+                cmd.Parameters["hid"].Value = huurId;
+                cmd.Parameters.Add("aid", OracleDbType.Int16);
+                cmd.Parameters["aid"].Value = ArtikelId;
+                OracleDataReader Read = cmd.ExecuteReader();
+                Read.Read();
+                if (Read.HasRows)
+                {
+                    return Read.GetInt16(2);
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static int? CheckBestaandBoot(int huurId, string bootId)
+        {
+            try
+            {
+                Openconnecion();
+                string str = "select * from boot_huurcontract where huurcontract_ID = :hid and boot_ID = :aid";
+                OracleCommand cmd = new OracleCommand(str);
+                cmd.Parameters.Add("hid", OracleDbType.Int16);
+                cmd.Parameters["hid"].Value = huurId;
+                cmd.Parameters.Add("aid", OracleDbType.Varchar2);
+                cmd.Parameters["aid"].Value = bootId;
+                OracleDataReader Read = cmd.ExecuteReader();
+                Read.Read();
+                if (Read.HasRows)
+                {
+                    return Read.GetInt16(2);
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
         public static bool VoegArtikelConnectieToe(int huurId,int ArtikelId)
         {
             try
             {
-                string str = "insert into Artikel_huurcontract values(:hid , :bid)";
+                Openconnecion();
+                string str = "insert into Artikel_huurcontract values(:hid , :bid , :hoeveel)";
                 OracleCommand cmd = new OracleCommand(str);
                 cmd.Parameters.Add("hid", OracleDbType.Int16);
                 cmd.Parameters["hid"].Value = huurId;
                 cmd.Parameters.Add("bid", OracleDbType.Int16);
                 cmd.Parameters["bid"].Value = ArtikelId;
+                cmd.Parameters.Add("hoeveel", OracleDbType.Int16);
+                int? i = CheckBestaand(huurId, ArtikelId);
+                if(i == null)
+                {
+                    i = 1;
+                }
+                cmd.Parameters["hoeveel"].Value = i;
                 cmd.ExecuteNonQuery();
                 return true;
 
@@ -223,12 +285,21 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 string str = "insert into boot_huurcontract values(:hid , :bid)";
                 OracleCommand cmd = new OracleCommand(str);
                 cmd.Parameters.Add("hid", OracleDbType.Int16);
                 cmd.Parameters["hid"].Value = huurId;
                 cmd.Parameters.Add("bid", OracleDbType.Varchar2);
                 cmd.Parameters["bid"].Value = BootId;
+                int? i = CheckBestaandBoot(huurId, BootId);
+                 cmd.Parameters["hoeveel"].Value = i;
+                if (i == null)
+                {
+                    i = 1;
+                }
+                cmd.Parameters["hoeveel"].Value = i;
+                cmd.Parameters.Add("hoeveel", OracleDbType.Int16);
                 cmd.ExecuteNonQuery();
                 return true;
 
@@ -243,6 +314,7 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 List<Huurcontract> huurcontracten = new List<Huurcontract>();
                 string str = "Select * from huurcontract";
                 OracleCommand cmd = new OracleCommand(str);
@@ -268,6 +340,7 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 string str = "select * from klant  where Id =  " + id;
                 OracleCommand cmd = new OracleCommand(str);
                 OracleDataReader Read = cmd.ExecuteReader();
@@ -285,13 +358,14 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 List<Vaargebieden> list = new List<Vaargebieden>();
                 string str = "select * from Vaargebieden";
                 OracleCommand cmd = new OracleCommand(str);
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
-                    Vaargebieden vaar = new Vaargebieden(Read.GetDouble(2), Read.GetString(1), Read.GetInt16(0),
+                    Vaargebieden vaar = new Vaargebieden(Read.GetDecimal(2), Read.GetString(1), Read.GetInt16(0),
                         Read.GetInt16(3));
                     list.Add(vaar);
                 }
@@ -307,6 +381,7 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 List<Klant> list = new List<Klant>();
                 string str = "select * from Vaargebieden";
                 OracleCommand cmd = new OracleCommand(str);
@@ -328,13 +403,14 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 List<Huur> list = new List<Huur>();
                 string str = "select * from Boot where motor = 0";
                 OracleCommand cmd = new OracleCommand(str);
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
-                    Spierboot boot = new Spierboot(Read.GetString(0), Read.GetDouble(2), Read.GetString(3));
+                    Spierboot boot = new Spierboot(Read.GetString(0), Read.GetDecimal(2), Read.GetString(3));
                     list.Add(boot);
                 }
                 str = "select * from Boot where motor = 1";
@@ -342,7 +418,7 @@ namespace TweakersRemake
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
-                    Motorboot boot = new Motorboot(Read.GetString(0), Read.GetDouble(2), Read.GetString(3),
+                    Motorboot boot = new Motorboot(Read.GetString(0), Read.GetDecimal(2), Read.GetString(3),
                         Read.GetInt16(1));
                     list.Add(boot);
                 }
@@ -352,7 +428,7 @@ namespace TweakersRemake
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
-                    Artikel boot = new Artikel(Read.GetInt16(0), Read.GetString(1), Read.GetDouble(2));
+                    Artikel boot = new Artikel(Read.GetInt16(0), Read.GetString(1), Read.GetDecimal(2));
                     list.Add(boot);
                 }
                 return list;
@@ -367,13 +443,14 @@ namespace TweakersRemake
         {
             try
             {
+                Openconnecion();
                 List<Huur> list = new List<Huur>();
                 string str = "select * from Boot b join Boot_huurcontract bh where b.motor = 0 and bh.huurcontract_ID = "+ id;
                 OracleCommand cmd = new OracleCommand(str);
                 OracleDataReader Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
-                    Spierboot boot = new Spierboot(Read.GetString(0), Read.GetDouble(2), Read.GetString(3));
+                    Spierboot boot = new Spierboot(Read.GetString(0), Read.GetDecimal(2), Read.GetString(3));
                     list.Add(boot);
                 }
                 str = "select * from Boot b join Boot_huurcontract bh where b.motor = 1 and bh.huurcontract_ID = " + id;
@@ -381,7 +458,7 @@ namespace TweakersRemake
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
-                    Motorboot boot = new Motorboot(Read.GetString(0), Read.GetDouble(2), Read.GetString(3),
+                    Motorboot boot = new Motorboot(Read.GetString(0), Read.GetDecimal(2), Read.GetString(3),
                         Read.GetInt16(1));
                     list.Add(boot);
                 }
@@ -391,7 +468,7 @@ namespace TweakersRemake
                 Read = cmd.ExecuteReader();
                 while (Read.Read())
                 {
-                    Artikel boot = new Artikel(Read.GetInt16(0), Read.GetString(1), Read.GetDouble(2));
+                    Artikel boot = new Artikel(Read.GetInt16(0), Read.GetString(1), Read.GetDecimal(2));
                     list.Add(boot);
                 }
                 return list;

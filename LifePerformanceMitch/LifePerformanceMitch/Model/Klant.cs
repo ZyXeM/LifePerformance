@@ -14,6 +14,12 @@ namespace LifePerformanceMitch.Model
            Naam = naam;
            Emailadres = emailadres;
        }
+        public Klant( string naam, string emailadres)
+        {
+           
+            Naam = naam;
+            Emailadres = emailadres;
+        }
         public int Id { get; set; }
         public string Naam { get; set; }
         public string Emailadres { get; set; }
